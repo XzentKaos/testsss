@@ -1,0 +1,1134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Gowtham — Photographer</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+
+  <style>
+    *, *::before, *::after {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --bg:        #0a0a0a;
+      --surface:   #111111;
+      --border:    #1e1e1e;
+      --muted:     #3a3a3a;
+      --text-dim:  #888;
+      --text:      #d4cfc8;
+      --accent:    #c8a96e;
+      --accent-dk: #8a6f3e;
+      --white:     #f0ece4;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Syne', sans-serif;
+      font-size: 16px;
+      line-height: 1.6;
+      overflow-x: hidden;
+      cursor: none;
+    }
+
+    /* ── Custom cursor ── */
+    .cursor {
+      position: fixed;
+      top: 0; left: 0;
+      width: 8px; height: 8px;
+      background: var(--accent);
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 9999;
+      transform: translate(-50%, -50%);
+      transition: transform .1s, width .25s, height .25s, background .25s;
+    }
+    .cursor-ring {
+      position: fixed;
+      top: 0; left: 0;
+      width: 36px; height: 36px;
+      border: 1px solid rgba(200,169,110,.4);
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 9998;
+      transform: translate(-50%, -50%);
+      transition: transform .18s ease, width .25s, height .25s;
+    }
+    body:hover .cursor { opacity: 1; }
+    a:hover ~ .cursor, button:hover ~ .cursor { width: 14px; height: 14px; }
+
+    /* ── Nav ── */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1.8rem 4rem;
+      background: linear-gradient(to bottom, rgba(10,10,10,.95), transparent);
+      backdrop-filter: blur(0px);
+    }
+
+    .nav-logo {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.5rem;
+      font-weight: 300;
+      letter-spacing: .12em;
+      color: var(--white);
+      text-decoration: none;
+    }
+    .nav-logo span { color: var(--accent); }
+
+    .nav-links {
+      display: flex;
+      gap: 2.8rem;
+      list-style: none;
+    }
+    .nav-links a {
+      color: var(--text-dim);
+      text-decoration: none;
+      font-size: .78rem;
+      font-weight: 600;
+      letter-spacing: .18em;
+      text-transform: uppercase;
+      transition: color .25s;
+    }
+    .nav-links a:hover { color: var(--accent); }
+
+    .nav-toggle {
+      display: none;
+      flex-direction: column;
+      gap: 5px;
+      cursor: none;
+      background: none;
+      border: none;
+      padding: 4px;
+    }
+    .nav-toggle span {
+      display: block;
+      width: 26px; height: 1.5px;
+      background: var(--text);
+      transition: transform .3s, opacity .3s;
+    }
+
+    /* ── Hero ── */
+    #hero {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      padding: 0 4rem 6rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero-bg {
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 80% 60% at 70% 40%, rgba(200,169,110,.07) 0%, transparent 65%),
+        radial-gradient(ellipse 50% 80% at 10% 90%, rgba(200,169,110,.04) 0%, transparent 55%);
+    }
+
+    /* Grain overlay */
+    .hero-bg::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+      background-size: 256px 256px;
+      pointer-events: none;
+      opacity: .6;
+    }
+
+    .hero-label {
+      font-size: .72rem;
+      font-weight: 600;
+      letter-spacing: .3em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 1.8rem;
+      opacity: 0;
+      animation: fadeUp .8s .2s ease forwards;
+    }
+
+    .hero-headline {
+      font-family: 'Cormorant Garamond', serif;
+      font-weight: 300;
+      font-size: clamp(3.5rem, 9vw, 9rem);
+      line-height: .95;
+      letter-spacing: -.01em;
+      color: var(--white);
+      max-width: 900px;
+      opacity: 0;
+      animation: fadeUp .9s .35s ease forwards;
+    }
+    .hero-headline em {
+      font-style: italic;
+      color: var(--accent);
+    }
+
+    .hero-sub {
+      margin-top: 2.2rem;
+      font-size: 1rem;
+      font-weight: 400;
+      color: var(--text-dim);
+      letter-spacing: .04em;
+      max-width: 420px;
+      opacity: 0;
+      animation: fadeUp .8s .5s ease forwards;
+    }
+
+    .hero-cta {
+      margin-top: 3rem;
+      display: flex;
+      align-items: center;
+      gap: 2.5rem;
+      opacity: 0;
+      animation: fadeUp .8s .65s ease forwards;
+    }
+
+    .btn-primary {
+      display: inline-flex;
+      align-items: center;
+      gap: .7rem;
+      padding: .85rem 2.2rem;
+      background: var(--accent);
+      color: #0a0a0a;
+      font-family: 'Syne', sans-serif;
+      font-size: .78rem;
+      font-weight: 700;
+      letter-spacing: .15em;
+      text-transform: uppercase;
+      text-decoration: none;
+      transition: background .25s, transform .2s;
+    }
+    .btn-primary:hover { background: var(--white); transform: translateY(-2px); }
+    .btn-primary svg { width: 14px; height: 14px; }
+
+    .hero-scroll {
+      display: flex;
+      align-items: center;
+      gap: .8rem;
+      font-size: .72rem;
+      letter-spacing: .2em;
+      text-transform: uppercase;
+      color: var(--text-dim);
+      text-decoration: none;
+      transition: color .25s;
+    }
+    .hero-scroll:hover { color: var(--accent); }
+    .scroll-line {
+      width: 40px; height: 1px;
+      background: var(--muted);
+    }
+
+    .hero-counter {
+      position: absolute;
+      right: 4rem;
+      bottom: 6rem;
+      font-family: 'Cormorant Garamond', serif;
+      font-size: .85rem;
+      color: var(--muted);
+      letter-spacing: .1em;
+      writing-mode: vertical-rl;
+      text-orientation: mixed;
+      opacity: 0;
+      animation: fadeIn 1s 1s ease forwards;
+    }
+
+    /* ── Section base ── */
+    section { padding: 7rem 4rem; }
+
+    .section-tag {
+      font-size: .7rem;
+      font-weight: 700;
+      letter-spacing: .3em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 1rem;
+    }
+
+    .section-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-weight: 300;
+      font-size: clamp(2.2rem, 4vw, 3.5rem);
+      color: var(--white);
+      line-height: 1.1;
+      margin-bottom: 2rem;
+    }
+    .section-title em { font-style: italic; color: var(--accent); }
+
+    /* ── About ── */
+    #about {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6rem;
+      align-items: center;
+      border-top: 1px solid var(--border);
+    }
+
+    .about-img-wrap {
+      position: relative;
+    }
+
+    .about-img-placeholder {
+      width: 100%;
+      aspect-ratio: 3/4;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .about-img-placeholder::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(135deg, rgba(200,169,110,.08) 0%, transparent 50%),
+        repeating-linear-gradient(
+          45deg,
+          transparent,
+          transparent 30px,
+          rgba(200,169,110,.03) 30px,
+          rgba(200,169,110,.03) 31px
+        );
+    }
+
+    .about-img-icon {
+      color: var(--muted);
+      opacity: .4;
+    }
+
+    .about-frame {
+      position: absolute;
+      bottom: -1.2rem;
+      right: -1.2rem;
+      width: 60%;
+      height: 60%;
+      border: 1px solid var(--accent-dk);
+      pointer-events: none;
+    }
+
+    .about-text p {
+      color: var(--text-dim);
+      font-size: .95rem;
+      line-height: 1.85;
+      margin-bottom: 1.5rem;
+    }
+    .about-text p strong { color: var(--text); font-weight: 600; }
+
+    .about-stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.5rem;
+      margin-top: 2.8rem;
+      padding-top: 2.8rem;
+      border-top: 1px solid var(--border);
+    }
+
+    .stat-num {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 2.8rem;
+      font-weight: 300;
+      color: var(--white);
+      line-height: 1;
+    }
+    .stat-num span { color: var(--accent); font-size: 1.8rem; }
+    .stat-label {
+      font-size: .7rem;
+      font-weight: 600;
+      letter-spacing: .2em;
+      text-transform: uppercase;
+      color: var(--text-dim);
+      margin-top: .4rem;
+    }
+
+    /* ── Gallery ── */
+    #gallery {
+      border-top: 1px solid var(--border);
+      background: var(--surface);
+    }
+
+    .gallery-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      margin-bottom: 3.5rem;
+      flex-wrap: wrap;
+      gap: 1.5rem;
+    }
+
+    .gallery-filter {
+      display: flex;
+      gap: 1.5rem;
+    }
+    .filter-btn {
+      background: none;
+      border: none;
+      font-family: 'Syne', sans-serif;
+      font-size: .72rem;
+      font-weight: 600;
+      letter-spacing: .18em;
+      text-transform: uppercase;
+      color: var(--text-dim);
+      cursor: none;
+      transition: color .25s;
+      padding: .3rem 0;
+      border-bottom: 1px solid transparent;
+    }
+    .filter-btn.active, .filter-btn:hover {
+      color: var(--accent);
+      border-bottom-color: var(--accent);
+    }
+
+    .gallery-grid {
+      display: grid;
+      grid-template-columns: repeat(12, 1fr);
+      grid-template-rows: auto;
+      gap: 1rem;
+    }
+
+    .photo-card {
+      position: relative;
+      overflow: hidden;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      cursor: none;
+    }
+
+    /* Varied layout */
+    .photo-card:nth-child(1) { grid-column: span 5; grid-row: span 2; }
+    .photo-card:nth-child(2) { grid-column: span 4; }
+    .photo-card:nth-child(3) { grid-column: span 3; }
+    .photo-card:nth-child(4) { grid-column: span 4; }
+    .photo-card:nth-child(5) { grid-column: span 3; }
+    .photo-card:nth-child(6) { grid-column: span 4; }
+    .photo-card:nth-child(7) { grid-column: span 3; grid-row: span 2; }
+    .photo-card:nth-child(8) { grid-column: span 5; }
+    .photo-card:nth-child(9) { grid-column: span 4; }
+
+    .photo-placeholder {
+      width: 100%;
+      aspect-ratio: 4/3;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: .8rem;
+      position: relative;
+      overflow: hidden;
+      transition: transform .5s ease;
+    }
+
+    .photo-card:nth-child(1) .photo-placeholder,
+    .photo-card:nth-child(7) .photo-placeholder { aspect-ratio: 3/4; }
+
+    /* Each card gets a unique tinted gradient */
+    .photo-card:nth-child(1) .photo-placeholder { background: linear-gradient(160deg,#1a1710 0%,#0e0d0b 100%); }
+    .photo-card:nth-child(2) .photo-placeholder { background: linear-gradient(135deg,#111510 0%,#0c0c0c 100%); }
+    .photo-card:nth-child(3) .photo-placeholder { background: linear-gradient(135deg,#14110d 0%,#0a0a0a 100%); }
+    .photo-card:nth-child(4) .photo-placeholder { background: linear-gradient(160deg,#100f14 0%,#0a0a0a 100%); }
+    .photo-card:nth-child(5) .photo-placeholder { background: linear-gradient(135deg,#131313 0%,#0d0c0a 100%); }
+    .photo-card:nth-child(6) .photo-placeholder { background: linear-gradient(135deg,#130f0a 0%,#0a0a0a 100%); }
+    .photo-card:nth-child(7) .photo-placeholder { background: linear-gradient(160deg,#0f1310 0%,#0a0c0a 100%); }
+    .photo-card:nth-child(8) .photo-placeholder { background: linear-gradient(135deg,#14120e 0%,#0b0a0a 100%); }
+    .photo-card:nth-child(9) .photo-placeholder { background: linear-gradient(135deg,#100f12 0%,#0a0a0a 100%); }
+
+    .photo-placeholder::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: repeating-linear-gradient(
+        -45deg,
+        transparent,
+        transparent 18px,
+        rgba(200,169,110,.03) 18px,
+        rgba(200,169,110,.03) 19px
+      );
+    }
+
+    .photo-icon {
+      color: var(--muted);
+      opacity: .25;
+      z-index: 1;
+    }
+
+    .photo-label {
+      font-size: .65rem;
+      font-weight: 600;
+      letter-spacing: .25em;
+      text-transform: uppercase;
+      color: var(--muted);
+      opacity: .5;
+      z-index: 1;
+    }
+
+    .photo-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(10,10,10,.85);
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      padding: 1.5rem;
+      opacity: 0;
+      transition: opacity .35s ease;
+    }
+
+    .photo-card:hover .photo-overlay { opacity: 1; }
+    .photo-card:hover .photo-placeholder { transform: scale(1.04); }
+
+    .photo-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-weight: 300;
+      font-size: 1.3rem;
+      color: var(--white);
+      margin-bottom: .25rem;
+    }
+    .photo-cat {
+      font-size: .65rem;
+      font-weight: 600;
+      letter-spacing: .2em;
+      text-transform: uppercase;
+      color: var(--accent);
+    }
+
+    /* ── Contact ── */
+    #contact {
+      border-top: 1px solid var(--border);
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6rem;
+      align-items: start;
+    }
+
+    .contact-info p {
+      color: var(--text-dim);
+      font-size: .95rem;
+      line-height: 1.8;
+      margin-bottom: 3rem;
+    }
+
+    .contact-detail {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+    .contact-item {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+    .contact-item-icon {
+      width: 38px; height: 38px;
+      border: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--accent);
+      flex-shrink: 0;
+    }
+    .contact-item-text span {
+      display: block;
+      font-size: .65rem;
+      font-weight: 600;
+      letter-spacing: .2em;
+      text-transform: uppercase;
+      color: var(--text-dim);
+      margin-bottom: .15rem;
+    }
+    .contact-item-text a, .contact-item-text p {
+      font-size: .9rem;
+      color: var(--text);
+      text-decoration: none;
+      transition: color .2s;
+    }
+    .contact-item-text a:hover { color: var(--accent); }
+
+    /* Form */
+    .contact-form {
+      display: flex;
+      flex-direction: column;
+      gap: 1.4rem;
+    }
+
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1.2rem; }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: .5rem;
+    }
+    .form-group label {
+      font-size: .68rem;
+      font-weight: 700;
+      letter-spacing: .2em;
+      text-transform: uppercase;
+      color: var(--text-dim);
+    }
+    .form-group input,
+    .form-group textarea,
+    .form-group select {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--text);
+      font-family: 'Syne', sans-serif;
+      font-size: .9rem;
+      padding: .9rem 1.1rem;
+      outline: none;
+      transition: border-color .25s, background .25s;
+      resize: none;
+      appearance: none;
+      -webkit-appearance: none;
+    }
+    .form-group input:focus,
+    .form-group textarea:focus,
+    .form-group select:focus {
+      border-color: var(--accent);
+      background: rgba(200,169,110,.03);
+    }
+    .form-group input::placeholder,
+    .form-group textarea::placeholder { color: var(--muted); }
+
+    .form-group textarea { min-height: 130px; }
+
+    .btn-submit {
+      align-self: flex-start;
+      display: inline-flex;
+      align-items: center;
+      gap: .8rem;
+      padding: 1rem 2.5rem;
+      background: transparent;
+      border: 1px solid var(--accent);
+      color: var(--accent);
+      font-family: 'Syne', sans-serif;
+      font-size: .78rem;
+      font-weight: 700;
+      letter-spacing: .18em;
+      text-transform: uppercase;
+      cursor: none;
+      transition: background .25s, color .25s, transform .2s;
+    }
+    .btn-submit:hover {
+      background: var(--accent);
+      color: #0a0a0a;
+      transform: translateY(-2px);
+    }
+    .btn-submit svg { transition: transform .25s; }
+    .btn-submit:hover svg { transform: translateX(4px); }
+
+    /* ── Footer ── */
+    footer {
+      padding: 2.5rem 4rem;
+      border-top: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+    .footer-copy {
+      font-size: .7rem;
+      color: var(--muted);
+      letter-spacing: .1em;
+    }
+    .footer-socials {
+      display: flex;
+      gap: 1.5rem;
+    }
+    .footer-socials a {
+      font-size: .7rem;
+      font-weight: 600;
+      letter-spacing: .15em;
+      text-transform: uppercase;
+      color: var(--muted);
+      text-decoration: none;
+      transition: color .25s;
+    }
+    .footer-socials a:hover { color: var(--accent); }
+
+    /* ── Animations ── */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(24px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to   { opacity: 1; }
+    }
+
+    .reveal {
+      opacity: 0;
+      transform: translateY(30px);
+      transition: opacity .7s ease, transform .7s ease;
+    }
+    .reveal.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* ── Mobile nav overlay ── */
+    .mobile-nav {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(10,10,10,.97);
+      z-index: 99;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      gap: 2.5rem;
+    }
+    .mobile-nav.open { display: flex; }
+    .mobile-nav a {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 2.8rem;
+      font-weight: 300;
+      color: var(--white);
+      text-decoration: none;
+      letter-spacing: .06em;
+      transition: color .2s;
+    }
+    .mobile-nav a:hover { color: var(--accent); }
+
+    /* ── Responsive ── */
+    @media (max-width: 1024px) {
+      nav { padding: 1.5rem 2.5rem; }
+      #hero { padding: 0 2.5rem 5rem; }
+      section { padding: 5rem 2.5rem; }
+      footer { padding: 2rem 2.5rem; }
+
+      #about { grid-template-columns: 1fr; gap: 3rem; }
+      .about-img-wrap { max-width: 400px; }
+      #contact { grid-template-columns: 1fr; gap: 3rem; }
+      .hero-counter { right: 2.5rem; }
+    }
+
+    @media (max-width: 768px) {
+      nav { padding: 1.2rem 1.5rem; }
+      .nav-links { display: none; }
+      .nav-toggle { display: flex; }
+
+      #hero { padding: 0 1.5rem 4rem; }
+      .hero-counter { display: none; }
+      section { padding: 4rem 1.5rem; }
+      footer { padding: 1.8rem 1.5rem; }
+
+      .gallery-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+      .photo-card { grid-column: span 1 !important; grid-row: span 1 !important; }
+      .photo-card:nth-child(1) { grid-column: span 2 !important; }
+
+      .form-row { grid-template-columns: 1fr; }
+
+      .about-stats { grid-template-columns: repeat(3, 1fr); }
+
+      .gallery-header { flex-direction: column; align-items: flex-start; }
+    }
+
+    @media (max-width: 480px) {
+      .hero-headline { font-size: clamp(2.8rem, 12vw, 4rem); }
+      .gallery-grid { grid-template-columns: 1fr; }
+      .photo-card { grid-column: span 1 !important; }
+      .about-stats { grid-template-columns: 1fr 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Custom cursor -->
+  <div class="cursor" id="cursor"></div>
+  <div class="cursor-ring" id="cursorRing"></div>
+
+  <!-- Nav -->
+  <nav>
+    <a href="#hero" class="nav-logo">G<span>.</span>Raaj</a>
+    <ul class="nav-links">
+      <li><a href="#about">About</a></li>
+      <li><a href="#gallery">Work</a></li>
+      <li><a href="#contact">Contact</a></li>
+    </ul>
+    <button class="nav-toggle" id="navToggle" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
+  </nav>
+
+  <!-- Mobile nav -->
+  <div class="mobile-nav" id="mobileNav">
+    <a href="#about" onclick="closeMobileNav()">About</a>
+    <a href="#gallery" onclick="closeMobileNav()">Work</a>
+    <a href="#contact" onclick="closeMobileNav()">Contact</a>
+  </div>
+
+  <!-- Hero -->
+  <section id="hero">
+    <div class="hero-bg"></div>
+    <p class="hero-label">Freelance Photographer — Available for hire</p>
+    <h1 class="hero-headline">
+      Capturing <em>light,</em><br>crafting moments.
+    </h1>
+    <p class="hero-sub">
+      Visual storyteller based in Chennai. Specialising in portrait, landscape, and documentary photography.
+    </p>
+    <div class="hero-cta">
+      <a href="#gallery" class="btn-primary">
+        View Work
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M5 12h14M12 5l7 7-7 7"/>
+        </svg>
+      </a>
+      <a href="#contact" class="hero-scroll">
+        <span class="scroll-line"></span>
+        Hire Me
+      </a>
+    </div>
+    <div class="hero-counter">© 2024 · Gowtham Raaj</div>
+  </section>
+
+  <!-- About -->
+  <section id="about">
+    <div class="about-img-wrap reveal">
+      <div class="about-img-placeholder">
+        <svg class="about-img-icon" width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
+          <circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/>
+        </svg>
+        <div class="about-frame"></div>
+      </div>
+    </div>
+    <div class="about-text reveal">
+      <p class="section-tag">About Me</p>
+      <h2 class="section-title">I find beauty in <em>ordinary</em> frames</h2>
+      <p>
+        Hi, I'm <strong>Gowtham</strong> — a freelance photographer with over eight years of experience turning fleeting moments into timeless images. My lens gravitates toward the spaces between — the unposed pause, the soft edge of afternoon light, the quiet dignity of everyday life.
+      </p>
+      <p>
+        My work spans portraiture, street photography, destination weddings, and commercial editorial. Clients describe working with me as <strong>calm, collaborative, and precise</strong> — I believe the best images emerge when subjects feel unseen.
+      </p>
+      <div class="about-stats">
+        <div>
+          <div class="stat-num">8<span>+</span></div>
+          <div class="stat-label">Years Active</div>
+        </div>
+        <div>
+          <div class="stat-num">340<span>+</span></div>
+          <div class="stat-label">Projects</div>
+        </div>
+        <div>
+          <div class="stat-num">12</div>
+          <div class="stat-label">Awards</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Gallery -->
+  <section id="gallery">
+    <div class="gallery-header reveal">
+      <div>
+        <p class="section-tag">Selected Work</p>
+        <h2 class="section-title">Recent <em>Captures</em></h2>
+      </div>
+      <div class="gallery-filter">
+        <button class="filter-btn active">All</button>
+        <button class="filter-btn">Portrait</button>
+        <button class="filter-btn">Street</button>
+        <button class="filter-btn">Editorial</button>
+      </div>
+    </div>
+
+    <div class="gallery-grid reveal">
+      <div class="photo-card">
+        <div class="photo-placeholder">
+          <svg class="photo-icon" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
+            <rect x="2" y="5" width="20" height="14" rx="2"/>
+            <circle cx="12" cy="12" r="4"/>
+          </svg>
+          <span class="photo-label">Portrait</span>
+        </div>
+        <div class="photo-overlay">
+          <p class="photo-title">Golden Hour Study</p>
+          <p class="photo-cat">Portrait · 2024</p>
+        </div>
+      </div>
+
+      <div class="photo-card">
+        <div class="photo-placeholder">
+          <svg class="photo-icon" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
+            <rect x="2" y="5" width="20" height="14" rx="2"/>
+            <circle cx="12" cy="12" r="4"/>
+          </svg>
+          <span class="photo-label">Street</span>
+        </div>
+        <div class="photo-overlay">
+          <p class="photo-title">Morning Rush</p>
+          <p class="photo-cat">Street · 2024</p>
+        </div>
+      </div>
+
+      <div class="photo-card">
+        <div class="photo-placeholder">
+          <svg class="photo-icon" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
+            <rect x="2" y="5" width="20" height="14" rx="2"/>
+            <circle cx="12" cy="12" r="4"/>
+          </svg>
+          <span class="photo-label">Landscape</span>
+        </div>
+        <div class="photo-overlay">
+          <p class="photo-title">Silent Valley</p>
+          <p class="photo-cat">Landscape · 2024</p>
+        </div>
+      </div>
+
+      <div class="photo-card">
+        <div class="photo-placeholder">
+          <svg class="photo-icon" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
+            <rect x="2" y="5" width="20" height="14" rx="2"/>
+            <circle cx="12" cy="12" r="4"/>
+          </svg>
+          <span class="photo-label">Editorial</span>
+        </div>
+        <div class="photo-overlay">
+          <p class="photo-title">Fabric & Form</p>
+          <p class="photo-cat">Editorial · 2023</p>
+        </div>
+      </div>
+
+      <div class="photo-card">
+        <div class="photo-placeholder">
+          <svg class="photo-icon" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
+            <rect x="2" y="5" width="20" height="14" rx="2"/>
+            <circle cx="12" cy="12" r="4"/>
+          </svg>
+          <span class="photo-label">Portrait</span>
+        </div>
+        <div class="photo-overlay">
+          <p class="photo-title">Unfiltered</p>
+          <p class="photo-cat">Portrait · 2023</p>
+        </div>
+      </div>
+
+      <div class="photo-card">
+        <div class="photo-placeholder">
+          <svg class="photo-icon" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
+            <rect x="2" y="5" width="20" height="14" rx="2"/>
+            <circle cx="12" cy="12" r="4"/>
+          </svg>
+          <span class="photo-label">Street</span>
+        </div>
+        <div class="photo-overlay">
+          <p class="photo-title">Crossroads</p>
+          <p class="photo-cat">Street · 2023</p>
+        </div>
+      </div>
+
+      <div class="photo-card">
+        <div class="photo-placeholder">
+          <svg class="photo-icon" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
+            <rect x="2" y="5" width="20" height="14" rx="2"/>
+            <circle cx="12" cy="12" r="4"/>
+          </svg>
+          <span class="photo-label">Architecture</span>
+        </div>
+        <div class="photo-overlay">
+          <p class="photo-title">Concrete Dreams</p>
+          <p class="photo-cat">Architecture · 2023</p>
+        </div>
+      </div>
+
+      <div class="photo-card">
+        <div class="photo-placeholder">
+          <svg class="photo-icon" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
+            <rect x="2" y="5" width="20" height="14" rx="2"/>
+            <circle cx="12" cy="12" r="4"/>
+          </svg>
+          <span class="photo-label">Nature</span>
+        </div>
+        <div class="photo-overlay">
+          <p class="photo-title">After Rain</p>
+          <p class="photo-cat">Nature · 2023</p>
+        </div>
+      </div>
+
+      <div class="photo-card">
+        <div class="photo-placeholder">
+          <svg class="photo-icon" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
+            <rect x="2" y="5" width="20" height="14" rx="2"/>
+            <circle cx="12" cy="12" r="4"/>
+          </svg>
+          <span class="photo-label">Editorial</span>
+        </div>
+        <div class="photo-overlay">
+          <p class="photo-title">The Quiet Edit</p>
+          <p class="photo-cat">Editorial · 2022</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Contact -->
+  <section id="contact">
+    <div class="contact-info reveal">
+      <p class="section-tag">Get In Touch</p>
+      <h2 class="section-title">Let's make something <em>remarkable</em></h2>
+      <p>
+        Whether you have a project in mind, want to license an image, or simply want to say hello — I'd love to hear from you. Response within 24 hours.
+      </p>
+      <div class="contact-detail">
+        <div class="contact-item">
+          <div class="contact-item-icon">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+            </svg>
+          </div>
+          <div class="contact-item-text">
+            <span>Email</span>
+            <a href="mailto:hello@gowthamraaj.com">hello@gowthamraaj.com</a>
+          </div>
+        </div>
+        <div class="contact-item">
+          <div class="contact-item-icon">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81a19.79 19.79 0 01-3.07-8.68A2 2 0 012.18 1h3a2 2 0 012 1.72 12.84 12.84 0 00.7 2.81 2 2 0 01-.45 2.11L6.91 8.1a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45 12.84 12.84 0 002.81.7A2 2 0 0122 14.92v2z"/>
+            </svg>
+          </div>
+          <div class="contact-item-text">
+            <span>Phone</span>
+            <a href="tel:+919876543210">+91 98765 43210</a>
+          </div>
+        </div>
+        <div class="contact-item">
+          <div class="contact-item-icon">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
+            </svg>
+          </div>
+          <div class="contact-item-text">
+            <span>Location</span>
+            <p>Chennai, Tamil Nadu, India</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="contact-form reveal">
+      <div class="form-row">
+        <div class="form-group">
+          <label for="fname">First Name</label>
+          <input type="text" id="fname" placeholder="Alex">
+        </div>
+        <div class="form-group">
+          <label for="lname">Last Name</label>
+          <input type="text" id="lname" placeholder="Rivera">
+        </div>
+      </div>
+      <div class="form-group">
+        <label for="email">Email Address</label>
+        <input type="email" id="email" placeholder="alex@example.com">
+      </div>
+      <div class="form-group">
+        <label for="project">Project Type</label>
+        <select id="project">
+          <option value="" disabled selected>Select a category</option>
+          <option>Portrait Session</option>
+          <option>Wedding Coverage</option>
+          <option>Commercial / Editorial</option>
+          <option>Street / Documentary</option>
+          <option>License an Image</option>
+          <option>Other</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="message">Message</label>
+        <textarea id="message" placeholder="Tell me about your project — dates, location, ideas..."></textarea>
+      </div>
+      <button class="btn-submit" type="button">
+        Send Message
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M5 12h14M12 5l7 7-7 7"/>
+        </svg>
+      </button>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer>
+    <p class="footer-copy">© 2024 Gowtham Raaj Photography. All rights reserved.</p>
+    <div class="footer-socials">
+      <a href="#">Instagram</a>
+      <a href="#">Behance</a>
+      <a href="#">500px</a>
+      <a href="#">LinkedIn</a>
+    </div>
+  </footer>
+
+  <script>
+    /* Custom cursor */
+    const cursor = document.getElementById('cursor');
+    const ring = document.getElementById('cursorRing');
+    let mx = 0, my = 0, rx = 0, ry = 0;
+
+    document.addEventListener('mousemove', e => {
+      mx = e.clientX; my = e.clientY;
+      cursor.style.left = mx + 'px';
+      cursor.style.top  = my + 'px';
+    });
+
+    function animateRing() {
+      rx += (mx - rx) * .12;
+      ry += (my - ry) * .12;
+      ring.style.left = rx + 'px';
+      ring.style.top  = ry + 'px';
+      requestAnimationFrame(animateRing);
+    }
+    animateRing();
+
+    /* Gallery filter buttons */
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+      });
+    });
+
+    /* Mobile nav */
+    const toggle = document.getElementById('navToggle');
+    const mobileNav = document.getElementById('mobileNav');
+
+    toggle.addEventListener('click', () => {
+      mobileNav.classList.toggle('open');
+    });
+
+    function closeMobileNav() {
+      mobileNav.classList.remove('open');
+    }
+
+    /* Scroll reveal */
+    const revealEls = document.querySelectorAll('.reveal');
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry, i) => {
+        if (entry.isIntersecting) {
+          setTimeout(() => entry.target.classList.add('visible'), i * 80);
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.1 });
+
+    revealEls.forEach(el => observer.observe(el));
+  </script>
+</body>
+</html>
